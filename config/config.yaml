@@ -1,0 +1,51 @@
+# TimeTree Workflow Configuration
+# OrthoFinder -> IQ2MC + MCMCtree
+
+# === Input Paths ===
+orthofinder_dir: "data/orthofinder"  # OrthoFinder run directory
+results_dir: "data/orthofinder/Results_May01"  # Specific Results_* folder
+proteomes_dir: "data/proteomes"  # Original protein FASTAs
+
+# === Calibration ===
+calibration_table: "config/calibrations.tsv"  # TSV with taxa_csv, min_age, max_age columns
+calibration_unit: "Myr"  # Myr or yr
+
+# === Rooting ===
+outgroup_taxa: []  # List of outgroup taxa for rooting, e.g. ["species1", "species2"]
+
+# === SCO Filtering ===
+sco:
+  min_taxa: 4  # Minimum number of taxa per orthogroup
+  allow_missing: false  # If true, allow orthogroups missing some species
+
+# === Multiple Sequence Alignment ===
+msa:
+  method: "mafft"  # mafft
+  mafft_opts: "--auto"
+  
+# === Trimming ===
+trim:
+  method: "trimal"  # trimal or clipkit
+  trimal_opts: "-automated1"
+
+# === IQ-TREE ML Tree ===
+iqtree:
+  model: "MFP"  # MFP for ModelFinder, or specify e.g. "LG+G4"
+  use_partition: true  # Use partition model
+  bootstrap: 0  # UFBoot replicates, 0 to disable
+  threads: "AUTO"
+
+# === IQ2MC / MCMCtree ===
+mcmctree:
+  clock_model: "IND"  # IND (independent rates), CORR (correlated), EQUAL (strict clock)
+  burnin: 20000
+  samplefreq: 200
+  nsample: 50000
+  birth_rate: 1.0
+  death_rate: 1.0
+  sampling_fraction: 0.5
+
+# === Output ===
+output_dir: "results/timetree"
+work_dir: "work"
+

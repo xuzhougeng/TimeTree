@@ -1,0 +1,9 @@
+# Example calibration table for TimeTree workflow
+# taxa_csv: comma-separated list of taxa defining MRCA node
+# min_age, max_age: age bounds in Myr (or unit specified in config.yaml)
+# label: optional name for this calibration point
+# prior: optional prior type (B=soft bounds, L=lower, U=upper; default B)
+taxa_csv	min_age	max_age	label	prior
+speciesA,speciesB	50	100	Root_Calibration	B
+speciesC,speciesD	20	40	Crown_Clade1	B
+

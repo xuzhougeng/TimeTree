@@ -1,0 +1,13 @@
+name: mcmctree
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - paml>=4.10
+  # Note: For IQ2MC workflow, you may need the modified mcmctree from
+  # https://github.com/iqtree/paml
+  # Install manually if needed:
+  # git clone https://github.com/iqtree/paml.git
+  # cd paml/src && make -f Makefile
+
