@@ -17,7 +17,8 @@ rule iqtree_ml:
         bootstrap=config["iqtree"]["bootstrap"],
         threads=config["iqtree"]["threads"],
         outgroup=config["outgroup_taxa"],
-        prefix=f"{config['output_dir']}/iqtree/species"
+        prefix=f"{config['output_dir']}/iqtree/species",
+        bin=config.get("binaries", {}).get("iqtree_ml", "")
     log:
         f"{config['work_dir']}/logs/iqtree_ml.log"
     conda:
@@ -25,6 +26,23 @@ rule iqtree_ml:
     threads: 8
     shell:
         """
+        mkdir -p $(dirname {params.prefix})
+
+        IQTREE_BIN="{params.bin}"
+        if [ -z "$IQTREE_BIN" ]; then
+            if command -v iqtree2 >/dev/null 2>&1; then
+                IQTREE_BIN="iqtree2"
+            elif command -v iqtree >/dev/null 2>&1; then
+                IQTREE_BIN="iqtree"
+            elif command -v iqtree3 >/dev/null 2>&1; then
+                # fallback (iqtree3 can also do ML)
+                IQTREE_BIN="iqtree3"
+            else
+                echo "ERROR: cannot find IQ-TREE binary (iqtree2/iqtree/iqtree3) in PATH" >&2
+                exit 1
+            fi
+        fi
+
         PARTITION_OPT=""
         if [ "{params.use_partition}" = "True" ]; then
             PARTITION_OPT="-p {input.partitions}"
@@ -44,7 +62,7 @@ rule iqtree_ml:
             fi
         fi
         
-        iqtree2 -s {input.supermatrix} $PARTITION_OPT \
+        $IQTREE_BIN -s {input.supermatrix} $PARTITION_OPT \
             -m {params.model} $BOOT_OPT $OUTGROUP_OPT \
             -T {params.threads} \
             --prefix {params.prefix} \

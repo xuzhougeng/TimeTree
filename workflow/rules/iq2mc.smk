@@ -23,7 +23,8 @@ rule iqtree_dating_mcmctree:
         nsample=config["mcmctree"]["nsample"],
         birth=config["mcmctree"]["birth_rate"],
         death=config["mcmctree"]["death_rate"],
-        sampling=config["mcmctree"]["sampling_fraction"]
+        sampling=config["mcmctree"]["sampling_fraction"],
+        bin=config.get("binaries", {}).get("iqtree_dating", "")
     log:
         f"{config['work_dir']}/logs/iqtree_dating.log"
     conda:
@@ -31,15 +32,32 @@ rule iqtree_dating_mcmctree:
     threads: 8
     shell:
         """
+        # IQ2MC step2 (Dating doc): REQUIRE iqtree3 for --dating mcmctree
+        mkdir -p $(dirname {params.prefix})
+
+        IQTREE_DATING_BIN="{params.bin}"
+        if [ -z "$IQTREE_DATING_BIN" ]; then
+            IQTREE_DATING_BIN="iqtree3"
+        fi
+
+        if ! command -v "$IQTREE_DATING_BIN" >/dev/null 2>&1; then
+            echo "ERROR: IQ2MC step2 requires IQ-TREE 3 (iqtree3). Not found: $IQTREE_DATING_BIN" >&2
+            echo "Set config.yaml: binaries.iqtree_dating to the absolute path of iqtree3, or add iqtree3 to PATH." >&2
+            exit 1
+        fi
+
         # Get model from previous IQ-TREE run
-        MODEL=$(grep "Best-fit model" {input.iqtree_done} | head -1 | awk '{{print $NF}}' || echo "LG+G4")
+        MODEL=$(grep -E "Best-fit model|Best-fit model:" {input.iqtree_done} | head -1 | awk '{{print $NF}}' || true)
+        if [ -z "$MODEL" ]; then
+            MODEL="LG+G4"
+        fi
         
         PARTITION_OPT=""
         if [ "{params.use_partition}" = "True" ]; then
             PARTITION_OPT="-p {input.partitions}"
         fi
         
-        iqtree2 -s {input.supermatrix} $PARTITION_OPT \
+        $IQTREE_DATING_BIN -s {input.supermatrix} $PARTITION_OPT \
             -m $MODEL \
             -te {input.tree} \
             --dating mcmctree \

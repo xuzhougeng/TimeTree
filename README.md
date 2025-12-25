@@ -24,14 +24,100 @@
 - OrthoFinder 结果
 - 包含化石/节点年龄约束的校准表
 
+## 环境设置
+
+### 方法 1：使用 Conda 自动管理环境（推荐）
+
+Snakemake 会自动为每个规则创建和激活所需的 conda 环境。只需确保安装了 conda/mamba：
+
+```bash
+# 安装 Mamba（推荐，比 conda 快）
+conda install -n base -c conda-forge mamba
+
+# 或者使用 Miniforge（已包含 mamba）
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh
+```
+
+**重要**：即使使用自动环境，MCMCtree 仍需要手动安装 IQ2MC 修改版（见下方"方法 2"中的安装步骤）。Snakemake 创建 `mcmctree` 环境后，需要在该环境中手动编译并安装修改版 MCMCtree。
+
+### 方法 2：手动创建统一环境
+
+如果您希望手动管理环境而不是让 Snakemake 自动创建：
+
+```bash
+# 创建主环境
+conda create -n timetree python=3.12
+conda activate timetree
+
+# 安装 Snakemake
+pip install snakemake
+
+# 安装 Python 依赖
+pip install  biopython ete3 pandas dendropy
+
+# 安装系统发育工具
+conda install  -c conda-forge -c bioconda \
+    mafft trimal clipkit seqkit iqtree
+
+# 安装 IQ2MC 的修改版 MCMCTree（必需）
+# IQ2MC 工作流需要来自 https://github.com/iqtree/paml 的修改版
+git clone https://github.com/iqtree/paml
+cd paml/src
+make -j
+mv baseml basemlg chi2 codeml evolver infinitesites pamp yn00 mcmctree $CONDA_PREFIX/bin
+cd ../..
+
+# 运行工作流程（不使用 --use-conda）
+snakemake --cores 8
+```
+
+**注意**：如果你的 `iqtree3` 不在 PATH，请在 `config/config.yaml` 指定绝对路径：
+```yaml
+binaries:
+  iqtree_dating: \"/ABS/PATH/TO/iqtree3\"
+```
+
+### 验证环境
+
+```bash
+# 检查关键工具是否可用
+mafft --version
+trimal --version
+iqtree --version
+python -c "import Bio; import ete3; import pandas; print('Python packages OK')"
+which mcmctree
+```
+
 ## 快速开始
+
+### 使用自动 Conda 环境（推荐）
 
 ```bash
 # 1. 编辑 config/config.yaml 中的路径
-# 2. 编辑 config/calibrations.tsv 中的校准点
-# 3. 运行工作流程
+vim config/config.yaml
 
+# 2. 编辑 config/calibrations.tsv 中的校准点
+vim config/calibrations.tsv
+
+# 3. 运行工作流程（Snakemake 自动管理所有环境）
 snakemake --use-conda --cores 8
+
+# 干运行查看将执行的步骤
+snakemake --use-conda --cores 8 -n
+
+# 查看 DAG 图（需要 graphviz）
+snakemake --dag | dot -Tpdf > workflow_dag.pdf
+```
+
+### 使用手动环境
+
+```bash
+# 先激活手动创建的环境
+conda activate timetree
+
+# 运行工作流程（不使用 --use-conda）
+snakemake --cores 8
 ```
 
 ## 输入文件
@@ -119,13 +205,21 @@ mcmctree:
 
 ### MCMCtree 二进制文件
 
-IQ2MC 工作流程需要来自 https://github.com/iqtree/paml 的修改版 MCMCtree。
+IQ2MC 工作流程**必须**使用来自 [https://github.com/iqtree/paml](https://github.com/iqtree/paml) 的修改版 MCMCtree。标准 conda 的 `paml` 包可能不兼容。
 
-如果 conda `paml` 包不起作用，请手动安装：
+**手动安装方法**（见上方"方法 2：手动创建统一环境"）：
 ```bash
-git clone https://github.com/iqtree/paml.git
-cd paml/src && make -f Makefile
-export PATH=$PWD:$PATH
+git clone https://github.com/iqtree/paml
+cd paml/src
+make -j
+mv baseml basemlg chi2 codeml evolver infinitesites pamp yn00 mcmctree $CONDA_PREFIX/bin
+```
+
+**验证安装**：
+```bash
+# 应显示用法信息而不是错误
+mcmctree 2>&1 | head -10
+which mcmctree  # 确认在 PATH 中
 ```
 
 ### MCMC 收敛性

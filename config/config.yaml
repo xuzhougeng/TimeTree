@@ -35,6 +35,16 @@ iqtree:
   bootstrap: 0  # UFBoot replicates, 0 to disable
   threads: "AUTO"
 
+# === Tool binaries ===
+# Notes:
+# - IQ2MC step2 REQUIRES IQ-TREE 3 (`iqtree3`) for `--dating mcmctree` as described in:
+#   https://iqtree.github.io/doc/Dating
+# - For IQ2MC step2, set `iqtree_dating` to `iqtree3` or an absolute path.
+binaries:
+  iqtree_ml: ""       # e.g. "iqtree2" or "iqtree"
+  iqtree_dating: ""   # REQUIRED: "iqtree3" (or absolute path to iqtree3)
+  mcmctree: "mcmctree"
+
 # === IQ2MC / MCMCtree ===
 mcmctree:
   clock_model: "IND"  # IND (independent rates), CORR (correlated), EQUAL (strict clock)

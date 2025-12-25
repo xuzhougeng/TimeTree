@@ -4,10 +4,15 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - paml>=4.10
-  # Note: For IQ2MC workflow, you may need the modified mcmctree from
+  # Note: IQ2MC workflow REQUIRES the modified mcmctree from
   # https://github.com/iqtree/paml
-  # Install manually if needed:
-  # git clone https://github.com/iqtree/paml.git
-  # cd paml/src && make -f Makefile
+  # Standard conda paml package may not work.
+  # 
+  # Manual installation (after creating this env):
+  # git clone https://github.com/iqtree/paml
+  # cd paml/src && make -j
+  # mv baseml basemlg chi2 codeml evolver infinitesites pamp yn00 mcmctree $CONDA_PREFIX/bin
+  #
+  # Or install standard paml as fallback (may fail):
+  - paml>=4.10
 
