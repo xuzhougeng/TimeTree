@@ -14,5 +14,5 @@ dependencies:
   # mv baseml basemlg chi2 codeml evolver infinitesites pamp yn00 mcmctree $CONDA_PREFIX/bin
   #
   # Or install standard paml as fallback (may fail):
+  - python>=3.9
   - paml>=4.10
-

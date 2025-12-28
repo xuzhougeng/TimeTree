@@ -14,7 +14,12 @@ rule run_mcmctree:
         figtree=f"{config['output_dir']}/mcmctree/FigTree.tre"
     params:
         outdir=f"{config['output_dir']}/mcmctree",
-        mcmctree_bin=config.get("binaries", {}).get("mcmctree", "mcmctree")
+        mcmctree_bin=config.get("binaries", {}).get("mcmctree", "mcmctree"),
+        parse_ctl_script=str(Path(workflow.basedir) / "workflow/scripts/parse_mcmctree_ctl.py"),
+        localize_ctl_script=str(Path(workflow.basedir) / "workflow/scripts/localize_mcmctree_ctl.py"),
+        clean_tree_script=str(Path(workflow.basedir) / "workflow/scripts/clean_mcmctree_tree.py"),
+        adjust_rootage_script=str(Path(workflow.basedir) / "workflow/scripts/adjust_rootage.py"),
+        ensure_print_script=str(Path(workflow.basedir) / "workflow/scripts/ensure_mcmctree_print.py")
     log:
         f"{config['work_dir']}/logs/mcmctree.log"
     conda:
@@ -23,7 +28,13 @@ rule run_mcmctree:
         """
         mkdir -p {params.outdir}
         LOG_FILE="$(pwd)/{log}"
+        OUTDIR_ABS="$(pwd)/{params.outdir}"
         mkdir -p "$(dirname "$LOG_FILE")"
+        PARSE_CTL_SCRIPT="{params.parse_ctl_script}"
+        LOCALIZE_CTL_SCRIPT="{params.localize_ctl_script}"
+        CLEAN_TREE_SCRIPT="{params.clean_tree_script}"
+        ADJUST_ROOTAGE_SCRIPT="{params.adjust_rootage_script}"
+        ENSURE_PRINT_SCRIPT="{params.ensure_print_script}"
 
         # MCMCtree ctl uses relative paths (seqfile/treefile). Run inside a staging dir
         # containing the ctl + referenced files (as recommended in IQ-TREE Dating docs).
@@ -34,7 +45,11 @@ rule run_mcmctree:
         cd "$RUNDIR"
 
         # Run mcmctree (IQ2MC step3)
-        MCMCFILE=$(awk -F= '/^[[:space:]]*mcmcfile[[:space:]]*=/{val=$2; sub(/[ \t]*\\*.*$/, "", val); gsub(/^[ \t]+|[ \t]+$/, "", val); print val; exit}' species.mcmctree.ctl)
+        python "$LOCALIZE_CTL_SCRIPT" species.mcmctree.ctl
+        python "$CLEAN_TREE_SCRIPT" species.rooted.nwk
+        python "$ADJUST_ROOTAGE_SCRIPT" species.mcmctree.ctl species.rooted.nwk
+        python "$ENSURE_PRINT_SCRIPT" species.mcmctree.ctl
+        MCMCFILE=$(python "$PARSE_CTL_SCRIPT" species.mcmctree.ctl)
         if [ -z "$MCMCFILE" ]; then
             MCMCFILE="mcmc.txt"
         fi
@@ -43,11 +58,11 @@ rule run_mcmctree:
 
         # Collect key outputs
         if [ -f "$MCMCFILE" ]; then
-            cp -f "$MCMCFILE" "{params.outdir}/mcmc.txt"
+            cp -f "$MCMCFILE" "$OUTDIR_ABS/mcmc.txt"
         else
             echo "WARNING: mcmcfile not found: $MCMCFILE" >&2
         fi
-        cp -f FigTree.tre "{params.outdir}/FigTree.tre"
+        cp -f FigTree.tre "$OUTDIR_ABS/FigTree.tre"
         """
 
 
