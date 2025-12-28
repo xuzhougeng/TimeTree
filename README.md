@@ -118,6 +118,9 @@ conda activate timetree
 
 # 运行工作流程（不使用 --use-conda）
 snakemake --cores 8
+
+#强行运行其中一个步骤
+snakemake --configfile config.yaml --cores 4 --forcerun run_mcmctree
 ```
 
 ## 输入文件
