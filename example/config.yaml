@@ -1,0 +1,58 @@
+# TimeTree Example Configuration
+# 5 Plant Species Test Case
+
+# === Input Paths ===
+orthofinder_dir: "orthofinder_analysis"
+results_dir: "orthofinder_analysis/Results_Dec28"
+proteomes_dir: "data/pep"
+
+# === Calibration ===
+calibration_table: "calibrations.tsv"
+calibration_unit: "Myr"
+
+# === Rooting ===
+# Outgroup not specified - sequences use gene IDs not species names
+# Tree will be rooted later during divergence time estimation
+outgroup_taxa: []
+
+# === SCO Filtering ===
+sco:
+  min_taxa: 4
+  allow_missing: false
+
+# === Multiple Sequence Alignment ===
+msa:
+  method: "mafft"
+  mafft_opts: "--auto"
+
+# === Trimming ===
+trim:
+  method: "trimal"
+  trimal_opts: "-automated1"
+
+# === IQ-TREE ML Tree ===
+iqtree:
+  model: "MFP"
+  use_partition: true
+  bootstrap: 1000
+  threads: 64
+
+# === Tool binaries ===
+binaries:
+  iqtree_ml: ""
+  iqtree_dating: ""
+  mcmctree: "mcmctree"
+
+# === MCMCtree ===
+mcmctree:
+  clock_model: "IND"
+  burnin: 10000
+  samplefreq: 100
+  nsample: 20000
+  birth_rate: 1.0
+  death_rate: 1.0
+  sampling_fraction: 0.5
+
+# === Output ===
+output_dir: "results/timetree"
+work_dir: "work"
