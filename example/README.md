@@ -15,6 +15,29 @@ This example demonstrates the TimeTree workflow using 8 plant species from Ensem
 | Oryza sativa | Rice | Monocot (Poaceae) |
 | Zea mays | Maize | Monocot (Poaceae) |
 
+> 之所以不选择葡萄，是因为葡萄经过三倍化后存在杂交（起码金虎尾目跟葡萄之间可以检测到），导致系统发育树的拓扑结构错误。
+
+```tree
+_________________________________________ Marchantia polymorpha (地钱/苔藓)
+|
+|    ____________________________________ Amborella trichopoda (无油樟/基部被子植物)
+|___|
+    |             _______________________ Oryza sativa (水稻)
+    |____________|
+    |            |_______________________ Zea mays (玉米)
+    |
+    |                         ___________ Vitis vinifera (葡萄/真双子叶基部)
+    |________________________|
+                             |      _____ Solanum lycopersicum (番茄/菊类)
+                             |_____|
+                                   |      ___ Populus trichocarpa (杨树/蔷薇类)
+                                   |_____|
+                                         |    ___ Arabidopsis thaliana (拟南芥/蔷薇类)
+                                         |___|
+                                             |___ Brassica rapa (白菜/蔷薇类)
+```
+
+
 ## Fossil Calibrations
 
 | Calibration Point | Taxa | Age (Mya) | Reference |
