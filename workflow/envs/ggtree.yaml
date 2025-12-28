@@ -1,0 +1,17 @@
+name: ggtree
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base>=4.2
+  - bioconductor-ggtree>=3.6
+  - bioconductor-treeio>=1.22
+  - r-ggplot2>=3.4
+  - r-dplyr
+  - r-tidyr
+  - r-scales
+  - r-ape
+  - r-phytools
+  - r-svglite
+  - r-ggnewscale

@@ -8,3 +8,6 @@ example/paml
 example/results
 example/.snakemake
 example/work
+example/mcmctree
+
+IQ2MC.md

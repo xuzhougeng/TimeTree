@@ -194,14 +194,42 @@ mcmctree:
 | `mcmctree/FigTree.tre` | MCMCtree 输出（FigTree 格式） |
 | `timetree.final.nwk` | 最终时间树（Newick 格式） |
 | `timetree.final.nex` | 最终时间树（NEXUS 格式，用于 FigTree） |
+| `timetree.pdf` | 时间树可视化（PDF 格式，ggtree 生成） |
+| `timetree.png` | 时间树可视化（PNG 格式，ggtree 生成） |
+| `timetree.svg` | 时间树可视化（SVG 格式，可编辑矢量图） |
 
 ## 可视化结果
 
-在 FigTree 中打开 `results/timetree/timetree.final.nex`：
+### 自动生成的可视化（ggtree）
+
+流程会自动使用 R 的 ggtree 包生成出版级别的时间树可视化图，包含：
+- 物种拉丁名（斜体显示）
+- 内部节点的分歧时间
+- 95% HPD 置信区间（蓝色区间条）
+- 地质时间轴
+
+输出文件：
+- `timetree.pdf` - 高分辨率 PDF（推荐用于出版）
+- `timetree.png` - PNG 格式（用于演示文稿）
+- `timetree.svg` - SVG 矢量格式（可用 Inkscape/Illustrator 进一步编辑）
+
+可在 `config/config.yaml` 中配置可视化选项：
+```yaml
+visualization:
+  time_unit: "Ma"  # 时间单位：Ma（百万年）、Myr、kya 等
+```
+
+### 使用 FigTree 手动可视化
+
+也可在 FigTree 中打开 `results/timetree/timetree.final.nex`：
 1. 在左侧面板中点击 "Node Labels"
 2. 将 "Display" 设置为 "date" 以显示估计的年龄
 
 ## 注意事项
+
+### 为什么使用蛋白（pep）序列
+
+本流程默认使用蛋白序列，是因为蛋白序列在远缘物种之间更容易可靠对齐，且对深分化的饱和效应和同义替换噪音更不敏感，通常能提高系统发育树和定年的稳健性。若研究对象为近缘物种或需要更高的核苷酸信息量，可改为使用 CDS/核苷酸序列并进行密码子感知比对，但需同步调整模型与比对流程以避免移码和模型不匹配。
 
 ### MCMCtree 二进制文件
 
@@ -240,3 +268,9 @@ which mcmctree  # 确认在 PATH 中
 ## 许可证
 
 MIT
+
+## 方法描述 / Methods
+
+中文：本流程以 OrthoFinder 的单拷贝直系同源群（SCO）蛋白序列为起点，使用 MAFFT 比对并用 trimAl 修剪后拼接为带分区的超矩阵；随后通过 IQ‑TREE 结合 ModelFinder（MFP）推断最大似然树，并依据外群或中点进行定根。我们将化石/节点约束注入树后，使用 IQ‑TREE 3 的 `--dating mcmctree` 计算梯度与 Hessian 并生成 MCMCtree 控制文件，最后在 IQ2MC 修改版 MCMCtree 的近似似然框架下进行贝叶斯定年（可选独立或相关速率时钟），得到时间校准系统发育树。
+
+English: Single‑copy orthologous protein sequences identified by OrthoFinder were aligned with MAFFT, trimmed with trimAl, and concatenated into a partitioned supermatrix. A maximum‑likelihood tree was inferred in IQ‑TREE with ModelFinder (MFP) and rooted by the specified outgroup or midpoint. Fossil/node calibrations were annotated on the rooted tree, and IQ‑TREE 3 (`--dating mcmctree`) was used to compute gradients/Hessian and generate the MCMCtree control files. Divergence times were then estimated under the approximate‑likelihood framework of the IQ2MC‑modified MCMCtree (with independent or correlated rates clock), yielding the final time‑calibrated phylogeny.

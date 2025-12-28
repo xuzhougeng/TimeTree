@@ -55,6 +55,10 @@ mcmctree:
   death_rate: 1.0
   sampling_fraction: 0.5
 
+# === Visualization (ggtree) ===
+visualization:
+  time_unit: "Ma"  # Time unit for axis label: Ma, Myr, kya, etc.
+
 # === Output ===
 output_dir: "results/timetree"
 work_dir: "work"
