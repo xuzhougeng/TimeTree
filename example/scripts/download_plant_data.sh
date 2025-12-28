@@ -22,7 +22,7 @@ SPECIES_LIST=(
     "Zea_mays:zea_mays:Zea_mays.Zm-B73-REFERENCE-NAM-5.0"
     "Solanum_lycopersicum:solanum_lycopersicum:Solanum_lycopersicum.SL3.0"
     "Vitis_vinifera:vitis_vinifera:Vitis_vinifera.PN40024.v4"
-    "Marchantia_polymorpha:marchantia_polymorpha:Marchantia_polymorpha.Marchanta_polymorpha_v1"
+    "Marchantia_polymorpha:marchantia_polymorpha:Marchantia_polymorpha.MpTak1_v7.1"
     "Brassica_rapa:brassica_rapa:Brassica_rapa.Brapa_1.0"
     "Amborella_trichopoda:amborella_trichopoda:Amborella_trichopoda.AMTR1.0"
 )
