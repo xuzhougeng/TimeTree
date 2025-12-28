@@ -23,7 +23,7 @@ rule iqtree_ml:
         f"{config['work_dir']}/logs/iqtree_ml.log"
     conda:
         "../envs/iqtree.yaml"
-    threads: 8
+    threads: config["iqtree"].get("threads", 8) if isinstance(config["iqtree"].get("threads"), int) else 8
     shell:
         """
         mkdir -p $(dirname {params.prefix})
