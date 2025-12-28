@@ -16,12 +16,14 @@ mkdir -p data/cds data/pep
 BASE_URL="https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-60/fasta"
 
 # Define species info: species_name, dir_name, file_prefix
+#    "Vitis_vinifera:vitis_vinifera:Vitis_vinifera.PN40024.v4"
+
 SPECIES_LIST=(
     "Arabidopsis_thaliana:arabidopsis_thaliana:Arabidopsis_thaliana.TAIR10"
     "Oryza_sativa:oryza_sativa:Oryza_sativa.IRGSP-1.0"
     "Zea_mays:zea_mays:Zea_mays.Zm-B73-REFERENCE-NAM-5.0"
     "Solanum_lycopersicum:solanum_lycopersicum:Solanum_lycopersicum.SL3.0"
-    "Vitis_vinifera:vitis_vinifera:Vitis_vinifera.PN40024.v4"
+    "Populus_trichocarpa:populus_trichocarpa:Populus_trichocarpa.Pop_tri_v4"
     "Marchantia_polymorpha:marchantia_polymorpha:Marchantia_polymorpha.MpTak1_v7.1"
     "Brassica_rapa:brassica_rapa:Brassica_rapa.Brapa_1.0"
     "Amborella_trichopoda:amborella_trichopoda:Amborella_trichopoda.AMTR1.0"

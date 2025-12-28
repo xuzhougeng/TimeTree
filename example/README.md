@@ -10,7 +10,7 @@ This example demonstrates the TimeTree workflow using 8 plant species from Ensem
 | Amborella trichopoda | Amborella | Basal angiosperm |
 | Arabidopsis thaliana | Thale cress | Eudicot (Brassicaceae) |
 | Brassica rapa | Chinese cabbage | Eudicot (Brassicaceae) |
-| Vitis vinifera | Grape | Eudicot (Vitaceae) |
+| Populus trichocarpa | Poplar | Eudicot (Salicaceae) |
 | Solanum lycopersicum | Tomato | Eudicot (Solanaceae) |
 | Oryza sativa | Rice | Monocot (Poaceae) |
 | Zea mays | Maize | Monocot (Poaceae) |
