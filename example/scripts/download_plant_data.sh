@@ -1,6 +1,7 @@
 #!/bin/bash
-# Download CDS and PEP sequences for 5 plant species from Ensembl Plants
-# Species: Arabidopsis thaliana, Oryza sativa, Zea mays, Solanum lycopersicum, Vitis vinifera
+# Download CDS and PEP sequences for 8 plant species from Ensembl Plants
+# Species: Arabidopsis thaliana, Oryza sativa, Zea mays, Solanum lycopersicum,
+#          Vitis vinifera, Marchantia polymorpha, Brassica rapa, Amborella trichopoda
 
 set -e
 
@@ -21,9 +22,12 @@ SPECIES_LIST=(
     "Zea_mays:zea_mays:Zea_mays.Zm-B73-REFERENCE-NAM-5.0"
     "Solanum_lycopersicum:solanum_lycopersicum:Solanum_lycopersicum.SL3.0"
     "Vitis_vinifera:vitis_vinifera:Vitis_vinifera.PN40024.v4"
+    "Marchantia_polymorpha:marchantia_polymorpha:Marchantia_polymorpha.Marchanta_polymorpha_v1"
+    "Brassica_rapa:brassica_rapa:Brassica_rapa.Brapa_1.0"
+    "Amborella_trichopoda:amborella_trichopoda:Amborella_trichopoda.AMTR1.0"
 )
 
-echo "=== Downloading CDS and PEP sequences for 5 plant species ==="
+echo "=== Downloading CDS and PEP sequences for 8 plant species ==="
 echo "Data source: Ensembl Plants Release 60"
 echo ""
 
@@ -66,5 +70,59 @@ echo ""
 echo "PEP files:"
 ls -lh data/pep/
 echo ""
-echo "To decompress files, run:"
-echo "  gunzip data/cds/*.gz data/pep/*.gz"
+
+# Remove isoforms (keep only longest transcript per gene)
+echo "=== Removing isoforms (keeping longest transcript per gene) ==="
+echo ""
+
+REMOVE_ISOFORMS_SCRIPT="$SCRIPT_DIR/remove_isoforms.py"
+
+if [ ! -f "$REMOVE_ISOFORMS_SCRIPT" ]; then
+    echo "Error: remove_isoforms.py not found at $REMOVE_ISOFORMS_SCRIPT"
+    exit 1
+fi
+
+# Create temporary directory for processed files
+mkdir -p data/cds_filtered data/pep_filtered
+
+for entry in "${SPECIES_LIST[@]}"; do
+    IFS=':' read -r species dir_name file_prefix <<< "$entry"
+
+    echo "Processing $species..."
+
+    # Remove isoforms from CDS (output uncompressed for speed)
+    cds_in="data/cds/${species}.cds.fa.gz"
+    cds_out="data/cds_filtered/${species}.cds.fa"
+    if [ -f "$cds_in" ]; then
+        echo "  Removing CDS isoforms..."
+        python3 "$REMOVE_ISOFORMS_SCRIPT" "$cds_in" "$cds_out"
+    fi
+
+    # Remove isoforms from PEP (output uncompressed for speed)
+    pep_in="data/pep/${species}.pep.fa.gz"
+    pep_out="data/pep_filtered/${species}.pep.fa"
+    if [ -f "$pep_in" ]; then
+        echo "  Removing PEP isoforms..."
+        python3 "$REMOVE_ISOFORMS_SCRIPT" "$pep_in" "$pep_out"
+    fi
+
+    echo ""
+done
+
+# Replace original files with filtered ones
+echo "Replacing original files with filtered versions..."
+mv data/cds data/cds_original
+mv data/cds_filtered data/cds
+mv data/pep data/pep_original
+mv data/pep_filtered data/pep
+
+echo ""
+echo "=== Isoform removal complete ==="
+echo "Original files (compressed) backed up to data/cds_original/ and data/pep_original/"
+echo "Filtered files (uncompressed) are now in data/cds/ and data/pep/"
+echo ""
+echo "Filtered CDS files:"
+ls -lh data/cds/
+echo ""
+echo "Filtered PEP files:"
+ls -lh data/pep/

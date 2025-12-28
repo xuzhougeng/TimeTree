@@ -9,7 +9,15 @@ WORKDIR=$(dirname "$SCRIPT_DIR")
 cd "$WORKDIR"
 
 # Check if pep files exist
-if [ ! -d "data/pep" ] || [ -z "$(ls -A data/pep/*.gz 2>/dev/null)" ]; then
+if [ ! -d "data/pep" ]; then
+    echo "Error: data/pep/ directory not found"
+    echo "Please run scripts/download_plant_data.sh first"
+    exit 1
+fi
+
+# Check for both .fa and .fa.gz files
+pep_files=$(ls data/pep/*.pep.fa 2>/dev/null || ls data/pep/*.pep.fa.gz 2>/dev/null || true)
+if [ -z "$pep_files" ]; then
     echo "Error: No protein files found in data/pep/"
     echo "Please run scripts/download_plant_data.sh first"
     exit 1
@@ -20,13 +28,28 @@ mkdir -p orthofinder_input
 
 echo "=== Preparing protein sequences for OrthoFinder ==="
 
-# Decompress and prepare protein files
-for f in data/pep/*.pep.fa.gz; do
-    species=$(basename "$f" .pep.fa.gz)
+# Process protein files (both .fa and .fa.gz)
+for f in data/pep/*.pep.fa data/pep/*.pep.fa.gz; do
+    # Skip if file doesn't exist (in case only one format is present)
+    [ -e "$f" ] || continue
+
+    # Extract species name
+    if [[ "$f" == *.fa.gz ]]; then
+        species=$(basename "$f" .pep.fa.gz)
+    else
+        species=$(basename "$f" .pep.fa)
+    fi
+
     echo "Processing: $species"
 
-    # Decompress and clean headers (keep only gene ID)
-    zcat "$f" | sed 's/\.[0-9]*$//' > "orthofinder_input/${species}.fa"
+    # Handle both compressed and uncompressed files
+    if [[ "$f" == *.gz ]]; then
+        # Decompress and clean headers
+        zcat "$f" | sed 's/\.[0-9]*$//' > "orthofinder_input/${species}.fa"
+    else
+        # Just clean headers (no decompression needed)
+        cat "$f" | sed 's/\.[0-9]*$//' > "orthofinder_input/${species}.fa"
+    fi
 done
 
 # Check if output directory exists
