@@ -74,10 +74,19 @@ def write_mcmctree_newick(tree: Tree, outfile: Path):
     """
     Write tree in Newick format compatible with MCMCtree.
     MCMCtree expects calibrations as node labels.
+
+    Note: ete3's tree.write() does not output root node name,
+    so we manually append it if the root has a calibration.
     """
     # Use format 8 to include internal node names
     newick = tree.write(format=8)
-    
+
+    # Handle root node calibration (ete3 doesn't output root name)
+    root_name = tree.name
+    if root_name:
+        # Remove trailing semicolon, append root name, add semicolon back
+        newick = newick.rstrip(';').rstrip() + root_name + ';'
+
     with open(outfile, 'w') as f:
         f.write(newick)
 
