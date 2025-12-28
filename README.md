@@ -124,6 +124,8 @@ snakemake --cores 8
 
 ### OrthoFinder 结果
 
+> 务必注意，OrthoFinder的输入蛋白序列，每个基因只能有一个代表性的蛋白，否则单拷贝基因的基因家族数量会明显减少。
+
 将 `config/config.yaml` 中的 `results_dir` 指向您的 OrthoFinder 结果文件夹，例如：
 
 ```yaml
