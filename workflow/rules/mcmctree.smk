@@ -22,6 +22,8 @@ rule run_mcmctree:
     shell:
         """
         mkdir -p {params.outdir}
+        LOG_FILE="$(pwd)/{log}"
+        mkdir -p "$(dirname "$LOG_FILE")"
 
         # MCMCtree ctl uses relative paths (seqfile/treefile). Run inside a staging dir
         # containing the ctl + referenced files (as recommended in IQ-TREE Dating docs).
@@ -32,10 +34,19 @@ rule run_mcmctree:
         cd "$RUNDIR"
 
         # Run mcmctree (IQ2MC step3)
-        {params.mcmctree_bin} species.mcmctree.ctl 2>&1 | tee {log}
+        MCMCFILE=$(awk -F= '/^[[:space:]]*mcmcfile[[:space:]]*=/{val=$2; sub(/[ \t]*\\*.*$/, "", val); gsub(/^[ \t]+|[ \t]+$/, "", val); print val; exit}' species.mcmctree.ctl)
+        if [ -z "$MCMCFILE" ]; then
+            MCMCFILE="mcmc.txt"
+        fi
+
+        {params.mcmctree_bin} species.mcmctree.ctl 2>&1 | tee "$LOG_FILE"
 
         # Collect key outputs
-        cp -f mcmc.txt "{params.outdir}/mcmc.txt"
+        if [ -f "$MCMCFILE" ]; then
+            cp -f "$MCMCFILE" "{params.outdir}/mcmc.txt"
+        else
+            echo "WARNING: mcmcfile not found: $MCMCFILE" >&2
+        fi
         cp -f FigTree.tre "{params.outdir}/FigTree.tre"
         """
 
@@ -54,4 +65,3 @@ rule postprocess_timetree:
         "../envs/py.yaml"
     script:
         "../scripts/mcmctree_postprocess.py"
-

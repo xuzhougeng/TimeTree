@@ -21,7 +21,7 @@ def parse_sco_list(sco_file: Path) -> list[str]:
     return ogs
 
 
-def parse_orthogroups_tsv(results_dir: Path) -> dict[str, dict[str, str]]:
+def parse_orthogroups_tsv(results_dir: Path) -> tuple[dict[str, dict[str, list[str]]], list[str]]:
     """Parse Orthogroups.tsv to get gene IDs per species per OG."""
     og_file = results_dir / "Orthogroups" / "Orthogroups.tsv"
     og_data = {}
@@ -57,6 +57,18 @@ def load_proteomes(proteomes_dir: Path) -> dict[str, dict[str, str]]:
     return proteomes
 
 
+def build_gene_to_species(og_genes: dict[str, list[str]]) -> tuple[dict[str, str], list[str]]:
+    """Build gene_id -> species mapping for a single orthogroup."""
+    gene_to_species = {}
+    duplicates = []
+    for sp, genes in og_genes.items():
+        for gene_id in genes:
+            if gene_id in gene_to_species and gene_to_species[gene_id] != sp:
+                duplicates.append(gene_id)
+            gene_to_species[gene_id] = sp
+    return gene_to_species, duplicates
+
+
 def main():
     # Snakemake provides input/output/params/log
     sco_list_file = Path(snakemake.input.sco_list)
@@ -86,23 +98,48 @@ def main():
     
     if use_og_sequences:
         logs.append(f"Using sequences from {og_sequences_dir}")
+        og_data, species_list = parse_orthogroups_tsv(results_dir)
         for og_id in sco_ids:
             og_fasta = og_sequences_dir / f"{og_id}.fa"
             if og_fasta.exists():
-                # Read and check taxa count
+                if og_id not in og_data:
+                    logs.append(f"SKIP {og_id}: not in Orthogroups.tsv")
+                    skipped += 1
+                    continue
+
+                og_genes = og_data[og_id]
+                gene_to_species, dupes = build_gene_to_species(og_genes)
+                if dupes:
+                    logs.append(f"WARN {og_id}: gene IDs mapped to multiple species: {sorted(set(dupes))[:5]}")
+
                 records = list(SeqIO.parse(og_fasta, "fasta"))
-                if len(records) >= min_taxa or allow_missing:
+                seq_by_species = {}
+                unknown = []
+
+                for rec in records:
+                    gene_id = rec.id
+                    sp = gene_to_species.get(gene_id)
+                    if not sp:
+                        unknown.append(gene_id)
+                        continue
+                    if sp in seq_by_species:
+                        logs.append(f"WARN {og_id}: duplicate sequence for species {sp} (gene {gene_id})")
+                        continue
+                    seq_by_species[sp] = str(rec.seq)
+
+                if unknown:
+                    logs.append(f"WARN {og_id}: {len(unknown)} gene IDs not mapped to species (e.g. {unknown[:3]})")
+
+                sequences = [(sp, seq_by_species[sp]) for sp in species_list if sp in seq_by_species]
+
+                if len(sequences) >= min_taxa or allow_missing:
                     out_file = output_dir / f"{og_id}.faa"
-                    # Rename sequences to species name (remove gene ID suffix)
                     with open(out_file, 'w') as out:
-                        for rec in records:
-                            # OrthoFinder names: Species_GeneID or just GeneID
-                            # Try to extract species from sequence name
-                            seq_name = rec.id.split('_')[0] if '_' in rec.id else rec.id
-                            out.write(f">{seq_name}\n{rec.seq}\n")
+                        for sp, seq in sequences:
+                            out.write(f">{sp}\n{seq}\n")
                     extracted += 1
                 else:
-                    logs.append(f"SKIP {og_id}: only {len(records)} taxa (min={min_taxa})")
+                    logs.append(f"SKIP {og_id}: only {len(sequences)} taxa (min={min_taxa})")
                     skipped += 1
             else:
                 logs.append(f"SKIP {og_id}: FASTA not found")
@@ -151,4 +188,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

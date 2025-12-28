@@ -41,7 +41,7 @@ iqtree:
 #   https://iqtree.github.io/doc/Dating
 # - For IQ2MC step2, set `iqtree_dating` to `iqtree3` or an absolute path.
 binaries:
-  iqtree_ml: ""       # e.g. "iqtree2" or "iqtree"
+  iqtree_ml: ""       # e.g. "iqtree3" or "iqtree"
   iqtree_dating: ""   # REQUIRED: "iqtree3" (or absolute path to iqtree3)
   mcmctree: "mcmctree"
 
@@ -58,4 +58,3 @@ mcmctree:
 # === Output ===
 output_dir: "results/timetree"
 work_dir: "work"
-

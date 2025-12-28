@@ -30,15 +30,12 @@ rule iqtree_ml:
 
         IQTREE_BIN="{params.bin}"
         if [ -z "$IQTREE_BIN" ]; then
-            if command -v iqtree2 >/dev/null 2>&1; then
-                IQTREE_BIN="iqtree2"
+            if command -v iqtree3 >/dev/null 2>&1; then
+                IQTREE_BIN="iqtree3"
             elif command -v iqtree >/dev/null 2>&1; then
                 IQTREE_BIN="iqtree"
-            elif command -v iqtree3 >/dev/null 2>&1; then
-                # fallback (iqtree3 can also do ML)
-                IQTREE_BIN="iqtree3"
             else
-                echo "ERROR: cannot find IQ-TREE binary (iqtree2/iqtree/iqtree3) in PATH" >&2
+                echo "ERROR: cannot find IQ-TREE binary (iqtree3/iqtree) in PATH" >&2
                 exit 1
             fi
         fi
@@ -84,4 +81,3 @@ rule root_tree:
         "../envs/py.yaml"
     script:
         "../scripts/root_tree.py"
-

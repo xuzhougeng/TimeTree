@@ -16,6 +16,7 @@ rule iqtree_dating_mcmctree:
         dummy_aln=f"{config['output_dir']}/iq2mc/species.dummy.phy"
     params:
         prefix=f"{config['output_dir']}/iq2mc/species",
+        model=config["iqtree"]["model"],
         use_partition=config["iqtree"]["use_partition"],
         clock=config["mcmctree"]["clock_model"],
         burnin=config["mcmctree"]["burnin"],
@@ -46,11 +47,7 @@ rule iqtree_dating_mcmctree:
             exit 1
         fi
 
-        # Get model from previous IQ-TREE run
-        MODEL=$(grep -E "Best-fit model|Best-fit model:" {input.iqtree_done} | head -1 | awk '{{print $NF}}' || true)
-        if [ -z "$MODEL" ]; then
-            MODEL="LG+G4"
-        fi
+        MODEL="{params.model}"
         
         PARTITION_OPT=""
         if [ "{params.use_partition}" = "True" ]; then
@@ -58,7 +55,7 @@ rule iqtree_dating_mcmctree:
         fi
         
         $IQTREE_DATING_BIN -s {input.supermatrix} $PARTITION_OPT \
-            -m $MODEL \
+            -m "$MODEL" \
             -te {input.tree} \
             --dating mcmctree \
             --mcmc-iter {params.burnin},{params.samplefreq},{params.nsample} \
@@ -68,4 +65,3 @@ rule iqtree_dating_mcmctree:
             --prefix {params.prefix} \
             2>&1 | tee {log}
         """
-
