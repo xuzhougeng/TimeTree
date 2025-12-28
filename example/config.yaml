@@ -1,5 +1,5 @@
 # TimeTree Example Configuration
-# 5 Plant Species Test Case
+# 8 Plant Species Test Case
 
 # === Input Paths ===
 orthofinder_dir: "orthofinder_analysis"
@@ -17,7 +17,7 @@ outgroup_taxa: []
 
 # === SCO Filtering ===
 sco:
-  min_taxa: 4
+  min_taxa: 6  # Minimum 75% of 8 species
   allow_missing: false
 
 # === Multiple Sequence Alignment ===

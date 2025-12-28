@@ -1,16 +1,19 @@
-# TimeTree Example: 5 Plant Species
+# TimeTree Example: 8 Plant Species
 
-This example demonstrates the TimeTree workflow using 5 plant species from Ensembl Plants.
+This example demonstrates the TimeTree workflow using 8 plant species from Ensembl Plants, representing major plant lineages.
 
 ## Species
 
-| Species | Common Name |
-|---------|-------------|
-| Arabidopsis thaliana | Thale cress |
-| Oryza sativa | Rice |
-| Zea mays | Maize |
-| Solanum lycopersicum | Tomato |
-| Vitis vinifera | Grape |
+| Species | Common Name | Lineage |
+|---------|-------------|---------|
+| Marchantia polymorpha | Liverwort | Bryophyte (non-vascular) |
+| Amborella trichopoda | Amborella | Basal angiosperm |
+| Arabidopsis thaliana | Thale cress | Eudicot (Brassicaceae) |
+| Brassica rapa | Chinese cabbage | Eudicot (Brassicaceae) |
+| Vitis vinifera | Grape | Eudicot (Vitaceae) |
+| Solanum lycopersicum | Tomato | Eudicot (Solanaceae) |
+| Oryza sativa | Rice | Monocot (Poaceae) |
+| Zea mays | Maize | Monocot (Poaceae) |
 
 ## Fossil Calibrations
 
@@ -33,6 +36,7 @@ example/
 ├── results/                  # TimeTree output
 └── scripts/
     ├── download_plant_data.sh
+    ├── remove_isoforms.py        # Remove transcript isoforms
     ├── run_orthofinder.sh
     ├── setup_env.sh
     └── run_timetree.sh
@@ -46,7 +50,23 @@ example/
 ./scripts/download_plant_data.sh
 ```
 
-Downloads CDS and protein sequences from Ensembl Plants Release 60.
+Downloads CDS and protein sequences from Ensembl Plants Release 60, then automatically removes isoforms (keeping only the longest transcript per gene).
+
+**What happens:**
+1. Downloads `.cds.all.fa.gz` and `.pep.all.fa.gz` files from Ensembl Plants
+2. Removes isoforms using `remove_isoforms.py` - keeps only the longest transcript for each gene
+3. Outputs uncompressed `.fa` files for faster downstream processing
+4. Backs up original compressed files to `data/cds_original/` and `data/pep_original/`
+5. Filtered files are saved as uncompressed `.fa` in `data/cds/` and `data/pep/`
+
+**Why remove isoforms?**
+Ensembl sequences include all transcript isoforms (alternative splicing variants) of each gene. For phylogenetic analysis, we need only one representative sequence per gene to avoid redundancy and ensure accurate ortholog detection.
+
+**Alternative: Filter existing data**
+If you already have downloaded data without isoform removal, you can run:
+```bash
+./scripts/filter_existing_data.sh
+```
 
 ### Step 2: Run OrthoFinder
 
@@ -101,6 +121,9 @@ Open `results/timetree/timetree.final.nex` in FigTree:
 
 ## Expected Results
 
-- ~460 single-copy orthologs
+- ~1000+ single-copy orthologs (varies with species divergence)
+- Land plants crown age: ~470 Mya
+- Core angiosperms divergence: ~160 Mya
 - Monocot-Dicot divergence: ~150 Mya
+- Brassicaceae crown age: ~30 Mya
 - Poaceae crown age: ~50 Mya
