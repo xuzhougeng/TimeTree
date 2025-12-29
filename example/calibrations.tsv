@@ -1,4 +1,5 @@
 taxa_csv	min_age	max_age	label	prior
-Marchantia_polymorpha,Oryza_sativa	460	497	Bryophyte_Angiosperm_Split	B
-Arabidopsis_thaliana,Oryza_sativa	142	163	Monocot_Dicot_Split	B
+Marchantia_polymorpha,Oryza_sativa	460	497	Land_Plants_Root	B
+Amborella_trichopoda,Oryza_sativa	179	205	Angiosperm_Crown	B
+Solanum_lycopersicum,Arabidopsis_thaliana	110	125	Eudicot_Crown	B
 Oryza_sativa,Zea_mays	41	52	Poaceae_Crown	B

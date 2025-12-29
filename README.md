@@ -230,7 +230,18 @@ visualization:
 1. 在左侧面板中点击 "Node Labels"
 2. 将 "Display" 设置为 "date" 以显示估计的年龄
 
-## 注意事项
+## 常见问题
+
+### 如何选择校准点
+
+在 https://timetree.org/ 选择3-4个，不宜过多。校准点的核心在于**“分布”**而不是“数量”。符合"帐篷原则"，也就是 "头、中、尾" 各一个
+
+- 根部（Deep Node）： 限制树的总高度（例如：地钱 vs 被子植物）。
+- 腰部（Backbone Node）： 支撑起中间的骨架（例如：单双子叶分化，或者真双子叶分化）。
+- 梢部（Shallow Node）： 校准近期的进化速率（例如：水稻 vs 玉米）。
+
+为什么不能用太多，这是因为化石记录和分子数据之间本身就有冲突。如果你强制规定了每一个节点的时间，软件（MCMCTree）可能会发现无法同时满足所有条件，导致程序报错、不收敛，或者跑出一个完全违背分子数据的奇怪结果。
+
 
 ### 为什么使用蛋白（pep）序列
 
@@ -270,12 +281,12 @@ which mcmctree  # 确认在 PATH 中
 
 **MCMCtree 错误**：验证校准树具有有效的 MCMCtree 语法。检查 `calibration_mapping.log`。
 
-## 许可证
-
-MIT
-
 ## 方法描述 / Methods
 
 中文：本流程以 OrthoFinder 的单拷贝直系同源群（SCO）蛋白序列为起点，使用 MAFFT 比对并用 trimAl 修剪后拼接为带分区的超矩阵；随后通过 IQ‑TREE 结合 ModelFinder（MFP）推断最大似然树，并依据外群或中点进行定根。我们将化石/节点约束注入树后，使用 IQ‑TREE 3 的 `--dating mcmctree` 计算梯度与 Hessian 并生成 MCMCtree 控制文件，最后在 IQ2MC 修改版 MCMCtree 的近似似然框架下进行贝叶斯定年（可选独立或相关速率时钟），得到时间校准系统发育树。
 
 English: Single‑copy orthologous protein sequences identified by OrthoFinder were aligned with MAFFT, trimmed with trimAl, and concatenated into a partitioned supermatrix. A maximum‑likelihood tree was inferred in IQ‑TREE with ModelFinder (MFP) and rooted by the specified outgroup or midpoint. Fossil/node calibrations were annotated on the rooted tree, and IQ‑TREE 3 (`--dating mcmctree`) was used to compute gradients/Hessian and generate the MCMCtree control files. Divergence times were then estimated under the approximate‑likelihood framework of the IQ2MC‑modified MCMCtree (with independent or correlated rates clock), yielding the final time‑calibrated phylogeny.
+
+## 许可证
+
+MIT

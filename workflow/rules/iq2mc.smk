@@ -63,5 +63,6 @@ rule iqtree_dating_mcmctree:
             --mcmc-clock {params.clock} \
             -T {threads} \
             --prefix {params.prefix} \
+            -redo \
             2>&1 | tee {log}
         """
