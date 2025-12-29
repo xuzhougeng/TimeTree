@@ -2,8 +2,28 @@
 
 ## 概述
 
+本工作流支持两种物种树构建方法：
+
+### 方法一：Concatenation（拼接法，默认）
 ```
 OrthoFinder → MSA → Supermatrix → IQ-TREE → IQ2MC → MCMCtree → TimeTree
+```
+- 将所有基因比对拼接成超级矩阵
+- 使用IQ-TREE推断ML物种树
+- 适用于近缘物种、基因数较少的情况
+
+### 方法二：Coalescent（共祖法）
+```
+OrthoFinder → MSA → Gene Trees → ASTRAL → IQ2MC → MCMCtree → TimeTree
+```
+- 对每个基因单独建树
+- 使用ASTRAL整合基因树推断物种树
+- 对不完全谱系分选(ILS)更稳健，适用于快速辐射、深度分化的类群
+
+### 选择方法
+在 `config/config.yaml` 中设置：
+```yaml
+tree_method: "concatenation"  # 或 "coalescent"
 ```
 
 ## 详细流程图
@@ -185,6 +205,8 @@ OrthoFinder → MSA → Supermatrix → IQ-TREE → IQ2MC → MCMCtree → TimeT
 
 ## 简化版流程图
 
+### Concatenation方法流程
+
 ```
 OrthoFinder结果
       │
@@ -223,14 +245,58 @@ OrthoFinder结果
                                  (可视化)
 ```
 
+### Coalescent方法流程 (tree_method: "coalescent")
+
+```
+OrthoFinder结果
+      │
+      ▼
+ extract_sco ──────────────────► N个 OG*.faa
+      │                          (筛选单拷贝直系同源基因)
+      │
+      ├──► mafft_align (×N) ───► OG*.raw.aln
+      │                          (多序列比对)
+      │
+      ├──► trim_alignment (×N) ► OG*.aln.faa
+      │                          (去除低质量区域)
+      ▼
+ build_gene_tree (×N) ─────────► work/gene_trees/OG*.treefile
+      │                          (每个基因单独建树)
+      ▼
+ concat_gene_trees ────────────► coalescent/gene_trees.nwk
+      │                          (合并所有基因树)
+      ▼
+ run_astral ───────────────────► species.astral.nwk
+      │                          (ASTRAL物种树推断)
+      ▼
+ root_astral_tree ─────────────► species_tree.astral.rooted.nwk
+      │                          (树根化)
+      ▼
+ annotate_calibrations ────────► species_tree.calibrated.nwk
+      │                          (注入化石校准点)
+      ▼
+ iqtree_dating_mcmctree ───────► .hessian + .ctl
+      │                          (计算Hessian矩阵)
+      ▼
+ run_mcmctree ─────────────────► FigTree.tre
+      │                          (贝叶斯分歧时间估计)
+      ▼
+ postprocess_timetree ─────────► timetree.final.nwk
+      │                          (格式转换)
+      ▼
+ plot_timetree ────────────────► timetree.pdf/png/svg
+                                 (可视化)
+```
+
 ## 规则文件结构
 
 | 文件 | 包含的规则 | 功能 |
 |------|-----------|------|
 | `orthogroups.smk` | extract_sco | 提取单拷贝直系同源基因 |
 | `msa.smk` | mafft_align, trim_alignment | 多序列比对和修剪 |
-| `supermatrix.smk` | concat_supermatrix | 合并为超级矩阵 |
-| `iqtree.smk` | iqtree_ml, root_tree | ML树推断和根化 |
+| `supermatrix.smk` | concat_supermatrix | 合并为超级矩阵 (concatenation) |
+| `iqtree.smk` | iqtree_ml, root_tree | ML树推断和根化 (concatenation) |
+| `coalescent.smk` | build_gene_tree, concat_gene_trees, run_astral, root_astral_tree | 基因树构建和ASTRAL整合 (coalescent) |
 | `calibrate_tree.smk` | annotate_calibrations | 注入化石校准点 |
 | `iq2mc.smk` | iqtree_dating_mcmctree | IQ2MC Step 2: 生成Hessian |
 | `mcmctree.smk` | run_mcmctree, postprocess_timetree | MCMCtree定年 |
@@ -240,25 +306,32 @@ OrthoFinder结果
 
 | 配置项 | 影响的规则 | 作用 |
 |-------|-----------|------|
+| `tree_method: concatenation/coalescent` | 整体流程 | 选择物种树构建方法 |
 | `use_partition: true/false` | iqtree_ml, iqtree_dating_mcmctree | 是否使用分区模型 |
-| `outgroup_taxa` | iqtree_ml, root_tree | 外群指定/根化方式 |
+| `outgroup_taxa` | iqtree_ml, root_tree, root_astral_tree | 外群指定/根化方式 |
 | `calibrations.tsv` | annotate_calibrations | 化石校准点 |
 | `clock_model: IND/COR` | iqtree_dating_mcmctree | 分子钟模型 |
 | `model: MFP` | iqtree_ml, iqtree_dating_mcmctree | 替代模型选择 |
 | `bootstrap` | iqtree_ml | Bootstrap重复次数 |
+| `coalescent.gene_tree_model` | build_gene_tree | 基因树推断模型 |
+| `coalescent.astral_bin` | run_astral | ASTRAL二进制路径 |
 
 ## 输出文件说明
 
 ### 中间文件 (`work/`)
 - `work/orthogroups_sco/` - 单拷贝基因FASTA
 - `work/msa/` - 比对文件
+- `work/gene_trees/` - 基因树文件 (coalescent方法)
 - `work/logs/` - 各步骤日志
 
 ### 结果文件 (`results/timetree/`)
 - `supermatrix.phy` - 超级矩阵
 - `partitions.nex` - 分区定义
-- `iqtree/species.treefile` - ML树
-- `species_tree.rooted.nwk` - 根化树
+- `iqtree/species.treefile` - ML树 (concatenation)
+- `coalescent/gene_trees.nwk` - 合并的基因树 (coalescent)
+- `coalescent/species.astral.nwk` - ASTRAL物种树 (coalescent)
+- `species_tree.rooted.nwk` - 根化树 (concatenation)
+- `species_tree.astral.rooted.nwk` - 根化ASTRAL树 (coalescent)
 - `species_tree.calibrated.nwk` - 校准树
 - `iq2mc/species.mcmctree.hessian` - Hessian矩阵
 - `mcmctree/FigTree.tre` - MCMCtree输出
@@ -280,3 +353,20 @@ OrthoFinder结果
 ### 3. MCMCtree未收敛
 **检查**: 用Tracer查看 `mcmc.txt` 的ESS值
 **解决**: 增加 burnin 和 nsample
+
+### 4. ASTRAL找不到
+**症状**: `Cannot find ASTRAL binary` 错误
+**解决**:
+- 安装: `conda install -c bioconda astral-tree`
+- 或在配置中指定路径: `coalescent.astral_bin: "/path/to/astral.jar"`
+
+### 5. 选择Concatenation还是Coalescent?
+| 场景 | 推荐方法 |
+|------|---------|
+| 近缘物种（属内/科内） | Concatenation |
+| 快速辐射演化 | Coalescent |
+| 深度分化（门/纲级别） | Coalescent |
+| 存在大量ILS | Coalescent |
+| 基因树冲突严重 | Coalescent |
+| 基因数量少（<50） | Concatenation |
+

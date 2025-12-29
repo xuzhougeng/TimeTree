@@ -2,10 +2,20 @@
 Rule: Annotate tree with fossil/node calibrations for MCMCtree
 """
 
+
+def get_species_tree_for_calibration(wildcards):
+    """Get the rooted species tree based on tree_method config."""
+    method = config.get("tree_method", "concatenation")
+    if method == "coalescent":
+        return f"{config['output_dir']}/species_tree.astral.rooted.nwk"
+    else:  # concatenation (default)
+        return f"{config['output_dir']}/species_tree.rooted.nwk"
+
+
 rule annotate_calibrations:
     """Inject calibration constraints into rooted tree for MCMCtree"""
     input:
-        tree=f"{config['output_dir']}/species_tree.rooted.nwk",
+        tree=get_species_tree_for_calibration,
         calibrations=config["calibration_table"]
     output:
         calibrated=f"{config['output_dir']}/species_tree.calibrated.nwk",

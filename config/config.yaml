@@ -13,6 +13,11 @@ calibration_unit: "Myr"  # Myr or yr
 # === Rooting ===
 outgroup_taxa: []  # List of outgroup taxa for rooting, e.g. ["species1", "species2"]
 
+# === Species Tree Method ===
+# "concatenation" - Build supermatrix and infer ML tree (traditional approach)
+# "coalescent"    - Build gene trees and use ASTRAL (robust to ILS)
+tree_method: "concatenation"
+
 # === SCO Filtering ===
 sco:
   min_taxa: 4  # Minimum number of taxa per orthogroup
@@ -62,3 +67,11 @@ visualization:
 # === Output ===
 output_dir: "results/timetree"
 work_dir: "work"
+
+# === Coalescent Method (ASTRAL) ===
+coalescent:
+  gene_tree_model: "MFP"  # Model for gene tree inference, MFP for ModelFinder
+  gene_tree_threads: 2    # Threads per gene tree inference
+  astral_bin: "astral"    # ASTRAL binary or path to .jar file
+  astral_opts: ""         # Extra ASTRAL options, e.g. "-t 2" for scoring
+  astral_threads: 4       # Threads for ASTRAL (if supported)

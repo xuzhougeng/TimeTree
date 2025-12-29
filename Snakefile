@@ -1,6 +1,10 @@
 """
 TimeTree Snakemake Workflow
-OrthoFinder SCO -> MSA -> Supermatrix -> IQ-TREE -> IQ2MC -> MCMCtree -> TimeTree
+OrthoFinder SCO -> MSA -> Species Tree -> IQ2MC -> MCMCtree -> TimeTree
+
+Species tree methods:
+  - concatenation: Supermatrix + IQ-TREE ML tree (traditional)
+  - coalescent: Gene trees + ASTRAL (robust to ILS)
 """
 
 from pathlib import Path
@@ -12,10 +16,21 @@ include: "workflow/rules/orthogroups.smk"
 include: "workflow/rules/msa.smk"
 include: "workflow/rules/supermatrix.smk"
 include: "workflow/rules/iqtree.smk"
+include: "workflow/rules/coalescent.smk"
 include: "workflow/rules/calibrate_tree.smk"
 include: "workflow/rules/iq2mc.smk"
 include: "workflow/rules/mcmctree.smk"
 include: "workflow/rules/visualization.smk"
+
+
+def get_rooted_species_tree(wildcards):
+    """Return the rooted species tree based on tree_method config."""
+    method = config.get("tree_method", "concatenation")
+    if method == "coalescent":
+        return f"{config['output_dir']}/species_tree.astral.rooted.nwk"
+    else:  # concatenation (default)
+        return f"{config['output_dir']}/species_tree.rooted.nwk"
+
 
 # Final target
 rule all:
