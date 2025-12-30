@@ -21,6 +21,7 @@
 
 - Snakemake >= 7.0
 - Conda/Mamba（用于环境管理）
+- R >= 4.0 及 ggtree 包（用于时间树可视化）
 - OrthoFinder 结果
 - 包含化石/节点年龄约束的校准表
 
@@ -58,7 +59,7 @@ pip install  biopython ete3 pandas dendropy
 
 # 安装系统发育工具
 conda install  -c conda-forge -c bioconda \
-    mafft trimal clipkit seqkit iqtree
+    mafft trimal clipkit seqkit iqtree astral-tree
 
 # 安装 IQ2MC 的修改版 MCMCTree（必需）
 # IQ2MC 工作流需要来自 https://github.com/iqtree/paml 的修改版
@@ -67,6 +68,10 @@ cd paml/src
 make -j
 mv baseml basemlg chi2 codeml evolver infinitesites pamp yn00 mcmctree $CONDA_PREFIX/bin
 cd ../..
+
+# 安装 R 可视化包 ggtree（用于时间树绘制）
+Rscript -e 'install.packages("BiocManager", repos="https://mirrors.westlake.edu.cn/cran/")'
+Rscript -e 'BiocManager::install("ggtree")'
 
 # 运行工作流程（不使用 --use-conda）
 snakemake --cores 8
@@ -85,6 +90,7 @@ binaries:
 mafft --version
 trimal --version
 iqtree --version
+which astral
 python -c "import Bio; import ete3; import pandas; print('Python packages OK')"
 which mcmctree
 ```
