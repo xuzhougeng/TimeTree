@@ -20,14 +20,13 @@ rule build_gene_tree:
         treefile=f"{config['work_dir']}/gene_trees/{{og}}.treefile"
     params:
         model=config.get("coalescent", {}).get("gene_tree_model", "MFP"),
-        threads=config.get("coalescent", {}).get("gene_tree_threads", 2),
         prefix=f"{config['work_dir']}/gene_trees/{{og}}",
         bin=config.get("binaries", {}).get("iqtree_ml", "")
     log:
         f"{config['work_dir']}/logs/gene_trees/{{og}}.log"
     conda:
         "../envs/iqtree.yaml"
-    threads: lambda wildcards, params: params.threads if isinstance(params.threads, int) else 2
+    threads: config.get("coalescent", {}).get("gene_tree_threads", 2)
     shell:
         """
         mkdir -p $(dirname {params.prefix})
@@ -46,7 +45,7 @@ rule build_gene_tree:
 
         $IQTREE_BIN -s {input.aln} \
             -m {params.model} \
-            -T {params.threads} \
+            -T {threads} \
             --prefix {params.prefix} \
             2>&1 | tee {log}
         """

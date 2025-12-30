@@ -9,3 +9,7 @@ example/results
 example/.snakemake
 example/work
 example/mcmctree
+.snakemake
+
+*pyc
+__pycache__/

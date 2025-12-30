@@ -8,4 +8,5 @@ dependencies:
   - trimal>=1.4
   - clipkit>=1.3
   - seqkit>=2.3
+  - astral-tree>=5.7  # ASTRAL for coalescent species tree inference
 

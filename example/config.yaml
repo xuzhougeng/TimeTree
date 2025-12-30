@@ -15,6 +15,11 @@ calibration_unit: "Myr"
 # Tree will be rooted later during divergence time estimation
 outgroup_taxa: []
 
+# === Species Tree Method ===
+# "concatenation" - Build supermatrix and infer ML tree (traditional approach)
+# "coalescent"    - Build gene trees and use ASTRAL (robust to ILS)
+tree_method: "coalescent"
+
 # === SCO Filtering ===
 sco:
   min_taxa: 6  # Minimum 75% of 8 species
@@ -38,12 +43,16 @@ iqtree:
   threads: 64
 
 # === Tool binaries ===
+# Notes:
+# - IQ2MC step2 REQUIRES IQ-TREE 3 (`iqtree3`) for `--dating mcmctree` as described in:
+#   https://iqtree.github.io/doc/Dating
+# - For IQ2MC step2, set `iqtree_dating` to `iqtree3` or an absolute path.
 binaries:
   iqtree_ml: ""
   iqtree_dating: ""
   mcmctree: "mcmctree"
 
-# === MCMCtree ===
+# === IQ2MC / MCMCtree ===
 mcmctree:
   clock_model: "IND"
   burnin: 10000
@@ -60,3 +69,11 @@ visualization:
 # === Output ===
 output_dir: "results/timetree"
 work_dir: "work"
+
+# === Coalescent Method (ASTRAL) ===
+coalescent:
+  gene_tree_model: "MFP"  # Model for gene tree inference, MFP for ModelFinder
+  gene_tree_threads: 2    # Threads per gene tree inference
+  astral_bin: "astral"    # ASTRAL binary or path to .jar file
+  astral_opts: ""         # Extra ASTRAL options, e.g. "-t 2" for scoring
+  astral_threads: 4       # Threads for ASTRAL (if supported)

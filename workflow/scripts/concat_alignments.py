@@ -4,26 +4,25 @@ Concatenate multiple sequence alignments into a supermatrix.
 Generate partition file in NEXUS format for IQ-TREE.
 """
 
-from __future__ import annotations
-
 import tempfile
 from pathlib import Path
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Dict, List, Tuple, Set
 from Bio import SeqIO
 
 
 @dataclass
 class SupermatrixResult:
     """Result of supermatrix concatenation."""
-    supermatrix: dict[str, str]  # species -> concatenated sequence
-    partitions: list[tuple[str, int, int]]  # (og_id, start, end)
-    species: list[str]  # sorted species list
+    supermatrix: Dict[str, str]  # species -> concatenated sequence
+    partitions: List[Tuple[str, int, int]]  # (og_id, start, end)
+    species: List[str]  # sorted species list
     total_length: int
     n_partitions: int
 
 
-def parse_alignment(aln_file: Path) -> dict[str, str]:
+def parse_alignment(aln_file: Path) -> Dict[str, str]:
     """Parse FASTA alignment into dict of species -> sequence."""
     seqs = {}
     for record in SeqIO.parse(aln_file, "fasta"):
@@ -31,7 +30,7 @@ def parse_alignment(aln_file: Path) -> dict[str, str]:
     return seqs
 
 
-def load_alignments(aln_files: list[Path]) -> tuple[dict[str, dict[str, str]], list[str]]:
+def load_alignments(aln_files: List[Path]) -> Tuple[Dict[str, Dict[str, str]], List[str]]:
     """
     Load all alignment files.
 
@@ -42,8 +41,8 @@ def load_alignments(aln_files: list[Path]) -> tuple[dict[str, dict[str, str]], l
         Tuple of (alignments dict, sorted species list)
         alignments: {og_id: {species: sequence}}
     """
-    all_species: set[str] = set()
-    alignments: dict[str, dict[str, str]] = {}
+    all_species: Set[str] = set()
+    alignments: Dict[str, Dict[str, str]] = {}
 
     for aln_file in sorted(aln_files):
         og_id = aln_file.stem.replace('.aln', '')
@@ -55,8 +54,8 @@ def load_alignments(aln_files: list[Path]) -> tuple[dict[str, dict[str, str]], l
 
 
 def build_supermatrix(
-    alignments: dict[str, dict[str, str]],
-    species_list: list[str]
+    alignments: Dict[str, Dict[str, str]],
+    species_list: List[str]
 ) -> SupermatrixResult:
     """
     Build supermatrix by concatenating alignments.
@@ -68,8 +67,8 @@ def build_supermatrix(
     Returns:
         SupermatrixResult with concatenated sequences and partition info
     """
-    supermatrix: dict[str, str] = defaultdict(str)
-    partitions: list[tuple[str, int, int]] = []
+    supermatrix: Dict[str, str] = defaultdict(str)
+    partitions: List[Tuple[str, int, int]] = []
     pos = 1
 
     # Use consistent ordering
@@ -106,10 +105,10 @@ def build_supermatrix(
 
 
 def _validate_partitions(
-    partitions: list[tuple[str, int, int]],
+    partitions: List[Tuple[str, int, int]],
     total_len: int,
-    sorted_og_ids: list[str],
-    alignments: dict[str, dict[str, str]]
+    sorted_og_ids: List[str],
+    alignments: Dict[str, Dict[str, str]]
 ) -> None:
     """
     Validate partition integrity.
@@ -195,7 +194,7 @@ def write_partitions(result: SupermatrixResult, out_path: Path) -> None:
 
 
 def concat_alignments(
-    aln_files: list[Path],
+    aln_files: List[Path],
     out_phy: Path,
     out_fasta: Path,
     out_part: Path

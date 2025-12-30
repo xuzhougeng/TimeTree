@@ -2,13 +2,24 @@
 Rule: IQ-TREE --dating mcmctree to generate Hessian/ctl files (IQ2MC Step 2)
 """
 
+
+def get_iq2mc_inputs(wildcards):
+    """Get inputs for iqtree_dating_mcmctree based on tree_method."""
+    inputs = {
+        "supermatrix": f"{config['output_dir']}/supermatrix.phy",
+        "partitions": f"{config['output_dir']}/partitions.nex",
+        "tree": f"{config['output_dir']}/species_tree.calibrated.nwk",
+    }
+    # Only require iqtree_done for concatenation method
+    if config.get("tree_method", "concatenation") == "concatenation":
+        inputs["iqtree_done"] = f"{config['output_dir']}/iqtree/species.iqtree"
+    return inputs
+
+
 rule iqtree_dating_mcmctree:
     """Generate Hessian and control file for MCMCtree"""
     input:
-        supermatrix=f"{config['output_dir']}/supermatrix.phy",
-        partitions=f"{config['output_dir']}/partitions.nex",
-        tree=f"{config['output_dir']}/species_tree.calibrated.nwk",
-        iqtree_done=f"{config['output_dir']}/iqtree/species.iqtree"  # ensure model is fitted
+        unpack(get_iq2mc_inputs)
     output:
         hessian=f"{config['output_dir']}/iq2mc/species.mcmctree.hessian",
         ctl=f"{config['output_dir']}/iq2mc/species.mcmctree.ctl",
