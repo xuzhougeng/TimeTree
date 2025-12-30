@@ -26,6 +26,7 @@ tree_method: "concatenation"
 sco:
   min_taxa: 4  # Minimum number of taxa per orthogroup
   allow_missing: false  # If true, allow orthogroups missing some species
+  min_sco: 100  # Minimum number of SCO families required (error if fewer)
 
 # === Multiple Sequence Alignment ===
 msa:

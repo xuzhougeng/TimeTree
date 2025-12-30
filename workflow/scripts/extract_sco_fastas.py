@@ -78,6 +78,7 @@ def main():
     log_file = Path(snakemake.output.log_file)
     min_taxa = snakemake.params.min_taxa
     allow_missing = snakemake.params.allow_missing
+    min_sco = snakemake.params.min_sco
     
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -179,7 +180,23 @@ def main():
                 skipped += 1
     
     logs.append(f"Extracted: {extracted}, Skipped: {skipped}")
-    
+
+    # Check minimum SCO requirement
+    if extracted < min_sco:
+        error_msg = (
+            f"ERROR: Only {extracted} SCO families extracted, "
+            f"but minimum required is {min_sco}.\n"
+            f"This may indicate:\n"
+            f"  - Polyploid species in the dataset (consider splitting subgenomes)\n"
+            f"  - Too few species overlap in orthogroups\n"
+            f"  - OrthoFinder results quality issues"
+        )
+        logs.append(error_msg)
+        with open(log_file, 'w') as f:
+            f.write('\n'.join(logs))
+        print(error_msg, file=sys.stderr)
+        sys.exit(1)
+
     with open(log_file, 'w') as f:
         f.write('\n'.join(logs))
     

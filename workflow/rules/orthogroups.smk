@@ -13,7 +13,8 @@ checkpoint extract_sco:
         log_file=f"{config['work_dir']}/orthogroups_sco/extraction.log"
     params:
         min_taxa=config["sco"]["min_taxa"],
-        allow_missing=config["sco"]["allow_missing"]
+        allow_missing=config["sco"]["allow_missing"],
+        min_sco=config["sco"].get("min_sco", 100)
     log:
         f"{config['work_dir']}/logs/extract_sco.log"
     conda:
