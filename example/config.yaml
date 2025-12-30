@@ -38,7 +38,7 @@ trim:
 # === IQ-TREE ML Tree ===
 iqtree:
   model: "MFP"
-  use_partition: false
+  use_partition: true
   bootstrap: 1000
   threads: 64
 
