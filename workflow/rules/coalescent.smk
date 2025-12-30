@@ -47,6 +47,7 @@ rule build_gene_tree:
             -m {params.model} \
             -T {threads} \
             --prefix {params.prefix} \
+            -redo \
             2>&1 | tee {log}
         """
 
