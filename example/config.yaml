@@ -13,7 +13,7 @@ calibration_unit: "Myr"
 # === Rooting ===
 # Outgroup not specified - sequences use gene IDs not species names
 # Tree will be rooted later during divergence time estimation
-outgroup_taxa: []
+outgroup_taxa: ["Marchantia_polymorpha"]
 
 # === Species Tree Method ===
 # "concatenation" - Build supermatrix and infer ML tree (traditional approach)

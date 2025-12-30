@@ -11,11 +11,15 @@ calibration_table: "config/calibrations.tsv"  # TSV with taxa_csv, min_age, max_
 calibration_unit: "Myr"  # Myr or yr
 
 # === Rooting ===
+# IMPORTANT: When using tree_method="coalescent", outgroup_taxa is REQUIRED
+# Coalescent-based species trees cannot use midpoint rooting
 outgroup_taxa: []  # List of outgroup taxa for rooting, e.g. ["species1", "species2"]
 
 # === Species Tree Method ===
 # "concatenation" - Build supermatrix and infer ML tree (traditional approach)
+#                   Outgroup is optional (midpoint rooting will be used if not specified)
 # "coalescent"    - Build gene trees and use ASTRAL (robust to ILS)
+#                   REQUIRES outgroup_taxa to be set (will error if not specified)
 tree_method: "concatenation"
 
 # === SCO Filtering ===

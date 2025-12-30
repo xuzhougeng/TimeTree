@@ -84,11 +84,16 @@ rule concat_gene_trees:
 
 
 rule run_astral:
-    """Run ASTRAL to infer species tree from gene trees
+    """Run ASTRAL to infer consensus species tree from gene trees
 
-    ASTRAL uses the multi-species coalescent model to infer species tree
-    from a collection of gene trees. It is statistically consistent under
-    the coalescent model, making it robust to ILS.
+    ASTRAL uses the multi-species coalescent model to infer a consensus
+    species tree from a collection of gene trees. It is statistically
+    consistent under the coalescent model, making it robust to ILS.
+
+    The output is a consensus species tree that minimizes quartet distance
+    across all input gene trees. Use astral_opts in config to add options:
+    - "-t 2" to output quartet support values as branch labels
+    - "-t 8" to output local posterior probabilities
     """
     input:
         gene_trees=f"{config['output_dir']}/coalescent/gene_trees.nwk"
@@ -141,13 +146,14 @@ rule run_astral:
 
 
 rule root_astral_tree:
-    """Root the ASTRAL species tree (midpoint or outgroup)"""
+    """Root the ASTRAL species tree using outgroup (required for coalescent method)"""
     input:
         tree=f"{config['output_dir']}/coalescent/species.astral.nwk"
     output:
         rooted=f"{config['output_dir']}/species_tree.astral.rooted.nwk"
     params:
-        outgroup=config["outgroup_taxa"]
+        outgroup=config["outgroup_taxa"],
+        require_outgroup=True
     log:
         f"{config['work_dir']}/logs/root_astral_tree.log"
     conda:

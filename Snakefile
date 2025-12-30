@@ -4,7 +4,9 @@ OrthoFinder SCO -> MSA -> Species Tree -> IQ2MC -> MCMCtree -> TimeTree
 
 Species tree methods:
   - concatenation: Supermatrix + IQ-TREE ML tree (traditional)
-  - coalescent: Gene trees + ASTRAL (robust to ILS)
+                   Outgroup optional (midpoint rooting if not specified)
+  - coalescent: Gene trees + ASTRAL consensus tree (robust to ILS)
+                REQUIRES outgroup setting for rooting
 """
 
 from pathlib import Path
