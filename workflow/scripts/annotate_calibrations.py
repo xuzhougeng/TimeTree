@@ -149,8 +149,8 @@ def main():
     tree = Tree(str(tree_file))
     logs.append(f"Loaded tree with {len(tree.get_leaves())} taxa")
     
-    # Load calibration table
-    calib_df = pd.read_csv(calib_file, sep='\t')
+    # Load calibration table (skip comment lines starting with #)
+    calib_df = pd.read_csv(calib_file, sep='\t', comment='#')
     logs.append(f"Loaded {len(calib_df)} calibration constraints")
     
     # Required columns
