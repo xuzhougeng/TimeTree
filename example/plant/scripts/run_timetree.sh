@@ -7,7 +7,7 @@ set -e
 # Get absolute paths
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 WORKDIR=$(dirname "$SCRIPT_DIR")
-TIMETREE_DIR=$(dirname "$WORKDIR")
+TIMETREE_DIR=$(dirname "$(dirname "$WORKDIR")")
 
 cd "$WORKDIR"
 

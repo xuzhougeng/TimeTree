@@ -1,14 +1,24 @@
 .cursor
 .cursorignore
 
-example/data
-example/orthofinder_analysis
-example/orthofinder_input
-example/paml
-example/results
-example/.snakemake
-example/work
-example/mcmctree
+example/plant/data
+example/plant/orthofinder_analysis
+example/plant/orthofinder_input
+example/plant/paml
+example/plant/results
+example/plant/.snakemake
+example/plant/work
+example/plant/mcmctree
+
+example/animal/data
+example/animal/orthofinder_analysis
+example/animal/orthofinder_input
+example/animal/paml
+example/animal/results
+example/animal/.snakemake
+example/animal/work
+example/animal/mcmctree
+
 .snakemake
 
 *pyc
