@@ -1,0 +1,6 @@
+taxa_csv	min_age	max_age	label	prior
+Caenorhabditis_elegans,Homo_sapiens	558	642	Bilateria_Crown	B
+Drosophila_melanogaster,Homo_sapiens	518	581	Protostome_Deuterostome	B
+Danio_rerio,Homo_sapiens	416	432	Osteichthyes_Crown	B
+Gallus_gallus,Homo_sapiens	312	330	Amniota_Crown	B
+Homo_sapiens,Mus_musculus	85	95	Euarchontoglires_Crown	B
