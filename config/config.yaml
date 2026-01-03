@@ -20,6 +20,8 @@ outgroup_taxa: []  # List of outgroup taxa for rooting, e.g. ["species1", "speci
 #                   Outgroup is optional (midpoint rooting will be used if not specified)
 # "coalescent"    - Build gene trees and use ASTRAL (robust to ILS)
 #                   REQUIRES outgroup_taxa to be set (will error if not specified)
+# "custom"        - Use a pre-built rooted tree file (skip tree inference)
+#                   REQUIRES custom_tree.tree_file to be set
 tree_method: "concatenation"
 
 # === SCO Filtering ===
@@ -80,3 +82,12 @@ coalescent:
   astral_bin: "astral"    # ASTRAL binary or path to .jar file
   astral_opts: ""         # Extra ASTRAL options, e.g. "-t 2" for scoring
   astral_threads: 4       # Threads for ASTRAL (if supported)
+
+# === Custom Tree (when tree_method="custom") ===
+# Provide a pre-built species tree to skip tree inference
+# The tree must be:
+#   1. In Newick format
+#   2. Already rooted (bifurcating root)
+#   3. Leaf names must exactly match species names in the orthogroups
+custom_tree:
+  tree_file: ""  # Path to the rooted species tree in Newick format

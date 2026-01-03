@@ -3,7 +3,7 @@
 
 # === Input Paths ===
 orthofinder_dir: "orthofinder_analysis"
-results_dir: "orthofinder_analysis/Results_PLACEHOLDER"  # Update after running OrthoFinder
+results_dir: "orthofinder_analysis/Results_Jan03"
 proteomes_dir: "data/pep"
 
 # === Calibration ===
@@ -12,12 +12,13 @@ calibration_unit: "Myr"
 
 # === Rooting ===
 # Use C. elegans as outgroup (most distant from vertebrates)
-outgroup_taxa: ["Caenorhabditis_elegans"]
+outgroup_taxa: ["Drosophila_melanogaster","Caenorhabditis_elegans"]
 
 # === Species Tree Method ===
 # "concatenation" - Build supermatrix and infer ML tree (traditional approach)
 # "coalescent"    - Build gene trees and use ASTRAL (robust to ILS)
-tree_method: "coalescent"
+# "custom"        - Use a pre-built rooted tree (skip tree inference)
+tree_method: "custom"
 
 # === SCO Filtering ===
 sco:
@@ -76,3 +77,16 @@ coalescent:
   astral_bin: "astral"    # ASTRAL binary or path to .jar file
   astral_opts: ""         # Extra ASTRAL options, e.g. "-t 2" for scoring
   astral_threads: 4       # Threads for ASTRAL (if supported)
+
+# === Custom Tree (when tree_method="custom") ===
+# Provide a pre-built species tree to skip tree inference
+# The tree must be:
+#   1. In Newick format
+#   2. Already rooted (bifurcating root)
+#   3. Leaf names must exactly match species names in the orthogroups
+# Example:
+#   tree_method: "custom"
+#   custom_tree:
+#     tree_file: "my_species_tree.nwk"
+custom_tree:
+  tree_file: "species_tree.nwk"  # Pre-built rooted species tree
