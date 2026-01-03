@@ -163,6 +163,17 @@ echo "=== Isoform removal complete ==="
 echo "Original files (compressed) backed up to data/cds_original/ and data/pep_original/"
 echo "Filtered files (uncompressed) are now in data/cds/ and data/pep/"
 echo ""
+
+# Replace U (Selenocysteine) with X in protein sequences
+echo "=== Replacing U (Selenocysteine) with X in protein sequences ==="
+for f in data/pep/*.pep.fa; do
+    if [ -f "$f" ]; then
+        echo "Processing: $(basename "$f")"
+        seqkit replace -s -p 'U' -r 'X' "$f" -o "${f}.tmp" && mv "${f}.tmp" "$f"
+    fi
+done
+echo ""
+
 echo "Filtered CDS files:"
 ls -lh data/cds/
 echo ""
