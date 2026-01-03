@@ -54,7 +54,9 @@ binaries:
 
 # === IQ2MC / MCMCtree ===
 mcmctree:
-  clock_model: "IND"
+  # Clock models to run (parallel execution)
+  # IND: independent rates, CORR: correlated rates, EQUAL: strict clock
+  clock_models: ["IND", "CORR", "EQUAL"]
   burnin: 10000
   samplefreq: 100
   nsample: 20000

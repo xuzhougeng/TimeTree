@@ -1,19 +1,20 @@
 """
 Rule: Run MCMCtree and post-process output (IQ2MC Step 3)
+Supports multiple clock models (IND, CORR, EQUAL) running in parallel.
 """
 
 rule run_mcmctree:
     """Run MCMCtree using IQ-TREE generated control file"""
     input:
-        ctl=f"{config['output_dir']}/iq2mc/species.mcmctree.ctl",
-        hessian=f"{config['output_dir']}/iq2mc/species.mcmctree.hessian",
-        rooted_nwk=f"{config['output_dir']}/iq2mc/species.rooted.nwk",
-        dummy_aln=f"{config['output_dir']}/iq2mc/species.dummy.phy"
+        ctl=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.mcmctree.ctl",
+        hessian=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.mcmctree.hessian",
+        rooted_nwk=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.rooted.nwk",
+        dummy_aln=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.dummy.phy"
     output:
-        mcmc=f"{config['output_dir']}/mcmctree/mcmc.txt",
-        figtree=f"{config['output_dir']}/mcmctree/FigTree.tre"
+        mcmc=f"{config['output_dir']}/mcmctree/{{clock_model}}/mcmc.txt",
+        figtree=f"{config['output_dir']}/mcmctree/{{clock_model}}/FigTree.tre"
     params:
-        outdir=f"{config['output_dir']}/mcmctree",
+        outdir=lambda w: f"{config['output_dir']}/mcmctree/{w.clock_model}",
         mcmctree_bin=config.get("binaries", {}).get("mcmctree", "mcmctree"),
         parse_ctl_script=str(Path(workflow.basedir) / "workflow/scripts/parse_mcmctree_ctl.py"),
         localize_ctl_script=str(Path(workflow.basedir) / "workflow/scripts/localize_mcmctree_ctl.py"),
@@ -21,9 +22,11 @@ rule run_mcmctree:
         adjust_rootage_script=str(Path(workflow.basedir) / "workflow/scripts/adjust_rootage.py"),
         ensure_print_script=str(Path(workflow.basedir) / "workflow/scripts/ensure_mcmctree_print.py")
     log:
-        f"{config['work_dir']}/logs/mcmctree.log"
+        f"{config['work_dir']}/logs/mcmctree.{{clock_model}}.log"
     conda:
         "../envs/mcmctree.yaml"
+    wildcard_constraints:
+        clock_model="IND|CORR|EQUAL"
     shell:
         """
         mkdir -p {params.outdir}
@@ -69,14 +72,16 @@ rule run_mcmctree:
 rule postprocess_timetree:
     """Post-process MCMCtree output to final time tree formats"""
     input:
-        figtree=f"{config['output_dir']}/mcmctree/FigTree.tre",
-        mcmc=f"{config['output_dir']}/mcmctree/mcmc.txt"
+        figtree=f"{config['output_dir']}/mcmctree/{{clock_model}}/FigTree.tre",
+        mcmc=f"{config['output_dir']}/mcmctree/{{clock_model}}/mcmc.txt"
     output:
-        nwk=f"{config['output_dir']}/timetree.final.nwk",
-        nex=f"{config['output_dir']}/timetree.final.nex"
+        nwk=f"{config['output_dir']}/timetree.{{clock_model}}.final.nwk",
+        nex=f"{config['output_dir']}/timetree.{{clock_model}}.final.nex"
     log:
-        f"{config['work_dir']}/logs/postprocess_timetree.log"
+        f"{config['work_dir']}/logs/postprocess_timetree.{{clock_model}}.log"
     conda:
         "../envs/py.yaml"
+    wildcard_constraints:
+        clock_model="IND|CORR|EQUAL"
     script:
         "../scripts/mcmctree_postprocess.py"

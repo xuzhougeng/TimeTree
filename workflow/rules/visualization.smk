@@ -149,16 +149,19 @@ rule plot_custom_tree:
 rule plot_timetree:
     """Generate publication-quality time tree visualization with ggtree"""
     input:
-        figtree=f"{config['output_dir']}/mcmctree/FigTree.tre"
+        figtree=f"{config['output_dir']}/mcmctree/{{clock_model}}/FigTree.tre"
     output:
-        pdf=f"{config['output_dir']}/timetree.pdf",
-        png=f"{config['output_dir']}/timetree.png",
-        svg=f"{config['output_dir']}/timetree.svg"
+        pdf=f"{config['output_dir']}/timetree.{{clock_model}}.pdf",
+        png=f"{config['output_dir']}/timetree.{{clock_model}}.png",
+        svg=f"{config['output_dir']}/timetree.{{clock_model}}.svg"
     params:
-        time_unit=config.get("visualization", {}).get("time_unit", "Ma")
+        time_unit=config.get("visualization", {}).get("time_unit", "Ma"),
+        clock_model=lambda w: w.clock_model
     log:
-        f"{config['work_dir']}/logs/plot_timetree.log"
+        f"{config['work_dir']}/logs/plot_timetree.{{clock_model}}.log"
     conda:
         "../envs/ggtree.yaml"
+    wildcard_constraints:
+        clock_model="IND|CORR|EQUAL"
     script:
         "../scripts/plot_timetree.R"

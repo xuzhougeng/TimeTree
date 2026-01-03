@@ -16,6 +16,23 @@ from pathlib import Path
 configfile: "config/config.yaml"
 
 # ============================================================================
+# Clock Models Configuration
+# ============================================================================
+
+def get_clock_models():
+    """Get clock models to run with backward compatibility."""
+    mcmctree_config = config.get("mcmctree", {})
+    if "clock_models" in mcmctree_config:
+        return mcmctree_config["clock_models"]
+    elif "clock_model" in mcmctree_config:
+        # Backward compatibility: single model as list
+        return [mcmctree_config["clock_model"]]
+    else:
+        return ["IND"]  # Default
+
+CLOCK_MODELS = get_clock_models()
+
+# ============================================================================
 # Configuration Validation
 # ============================================================================
 
@@ -88,9 +105,9 @@ def get_rooted_species_tree(wildcards):
 # Final target
 rule all:
     input:
-        f"{config['output_dir']}/timetree.final.nwk",
-        f"{config['output_dir']}/timetree.final.nex",
-        f"{config['output_dir']}/timetree.pdf",
-        f"{config['output_dir']}/timetree.png",
-        f"{config['output_dir']}/timetree.svg"
+        expand(f"{config['output_dir']}/timetree.{{clock}}.final.nwk", clock=CLOCK_MODELS),
+        expand(f"{config['output_dir']}/timetree.{{clock}}.final.nex", clock=CLOCK_MODELS),
+        expand(f"{config['output_dir']}/timetree.{{clock}}.pdf", clock=CLOCK_MODELS),
+        expand(f"{config['output_dir']}/timetree.{{clock}}.png", clock=CLOCK_MODELS),
+        expand(f"{config['output_dir']}/timetree.{{clock}}.svg", clock=CLOCK_MODELS)
 

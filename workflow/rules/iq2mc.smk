@@ -1,5 +1,6 @@
 """
 Rule: IQ-TREE --dating mcmctree to generate Hessian/ctl files (IQ2MC Step 2)
+Supports multiple clock models (IND, CORR, EQUAL) running in parallel.
 """
 
 
@@ -22,15 +23,15 @@ rule iqtree_dating_mcmctree:
     input:
         unpack(get_iq2mc_inputs)
     output:
-        hessian=f"{config['output_dir']}/iq2mc/species.mcmctree.hessian",
-        ctl=f"{config['output_dir']}/iq2mc/species.mcmctree.ctl",
-        rooted_nwk=f"{config['output_dir']}/iq2mc/species.rooted.nwk",
-        dummy_aln=f"{config['output_dir']}/iq2mc/species.dummy.phy"
+        hessian=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.mcmctree.hessian",
+        ctl=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.mcmctree.ctl",
+        rooted_nwk=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.rooted.nwk",
+        dummy_aln=f"{config['output_dir']}/iq2mc/{{clock_model}}/species.dummy.phy"
     params:
-        prefix=f"{config['output_dir']}/iq2mc/species",
+        prefix=lambda w: f"{config['output_dir']}/iq2mc/{w.clock_model}/species",
         model=config["iqtree"]["model"],
         use_partition=config["iqtree"]["use_partition"],
-        clock=config["mcmctree"]["clock_model"],
+        clock=lambda w: w.clock_model,
         burnin=config["mcmctree"]["burnin"],
         samplefreq=config["mcmctree"]["samplefreq"],
         nsample=config["mcmctree"]["nsample"],
@@ -39,10 +40,12 @@ rule iqtree_dating_mcmctree:
         sampling=config["mcmctree"]["sampling_fraction"],
         bin=config.get("binaries", {}).get("iqtree_dating", "")
     log:
-        f"{config['work_dir']}/logs/iqtree_dating.log"
+        f"{config['work_dir']}/logs/iqtree_dating.{{clock_model}}.log"
     conda:
         "../envs/iqtree.yaml"
     threads: 8
+    wildcard_constraints:
+        clock_model="IND|CORR|EQUAL"
     shell:
         """
         # IQ2MC step2 (Dating doc): REQUIRE iqtree3 for --dating mcmctree
@@ -60,12 +63,12 @@ rule iqtree_dating_mcmctree:
         fi
 
         MODEL="{params.model}"
-        
+
         PARTITION_OPT=""
         if [ "{params.use_partition}" = "True" ]; then
             PARTITION_OPT="-p {input.partitions}"
         fi
-        
+
         $IQTREE_DATING_BIN -s {input.supermatrix} $PARTITION_OPT \
             -m "$MODEL" \
             -te {input.tree} \
