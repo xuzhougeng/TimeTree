@@ -15,22 +15,27 @@ This example demonstrates the TimeTree workflow using 8 animal species from Ense
 | Mus musculus | Mouse | Mammalia (Rodentia) |
 | Homo sapiens | Human | Mammalia (Primates) |
 
+```newick
+((Caenorhabditis_elegans,Drosophila_melanogaster),(Danio_rerio,(Gallus_gallus,((Bos_taurus,Canis_lupus_familiaris),(Mus_musculus,Homo_sapiens)))));
+```
+
 ```tree
-________________________________________________ Caenorhabditis elegans (outgroup)
+                    _____________________________ Caenorhabditis elegans
+ __________________|
+|                  |_____________________________ Drosophila melanogaster
 |
-|    ____________________________________________ Drosophila melanogaster
-|___|
-    |        ____________________________________ Danio rerio
-    |_______|
-            |       _____________________________ Gallus gallus
-            |______|
-                   |               ______________ Bos taurus
-                   |______________|
-                                  |    __________ Canis lupus familiaris
-                                  |___|
-                                      |    ______ Mus musculus
-                                      |___|
-                                          |______ Homo sapiens
+|        _______________________________________ Danio rerio
+|_______|
+        |       ________________________________ Gallus gallus
+        |______|
+               |                 _____________________ Bos taurus
+               |        ________|
+               |       |        |_____________________ Canis lupus familiaris
+               |_______|
+                       |          _____________________ Mus musculus        
+                       |________ |
+                                 |_____________________ Homo sapiens
+
 ```
 
 ## Fossil Calibrations

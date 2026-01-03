@@ -11,6 +11,7 @@ def get_iq2mc_inputs(wildcards):
         "tree": f"{config['output_dir']}/species_tree.calibrated.nwk",
     }
     # Only require iqtree_done for concatenation method
+    # (coalescent and custom methods skip IQ-TREE ML tree inference)
     if config.get("tree_method", "concatenation") == "concatenation":
         inputs["iqtree_done"] = f"{config['output_dir']}/iqtree/species.iqtree"
     return inputs

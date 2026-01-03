@@ -8,6 +8,8 @@ def get_species_tree_for_calibration(wildcards):
     method = config.get("tree_method", "concatenation")
     if method == "coalescent":
         return f"{config['output_dir']}/species_tree.astral.rooted.nwk"
+    elif method == "custom":
+        return f"{config['output_dir']}/species_tree.custom.rooted.nwk"
     else:  # concatenation (default)
         return f"{config['output_dir']}/species_tree.rooted.nwk"
 

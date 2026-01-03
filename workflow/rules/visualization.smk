@@ -16,6 +16,11 @@ def get_intermediate_tree_plots(wildcards):
             f"{config['output_dir']}/plots/species_tree.astral.png",
             f"{config['output_dir']}/plots/species_tree.astral.rooted.png"
         ])
+    elif method == "custom":
+        # Custom method: only the user-provided rooted tree
+        plots.extend([
+            f"{config['output_dir']}/plots/species_tree.custom.rooted.png"
+        ])
     else:
         # Concatenation method: IQ-TREE trees
         plots.extend([
@@ -112,6 +117,25 @@ rule plot_rooted_astral_tree:
         show_support=True
     log:
         f"{config['work_dir']}/logs/plot_rooted_astral_tree.log"
+    conda:
+        "../envs/ggtree.yaml"
+    script:
+        "../scripts/plot_tree.R"
+
+
+rule plot_custom_tree:
+    """Visualize the custom rooted species tree"""
+    input:
+        tree=f"{config['output_dir']}/species_tree.custom.rooted.nwk"
+    output:
+        pdf=f"{config['output_dir']}/plots/species_tree.custom.rooted.pdf",
+        png=f"{config['output_dir']}/plots/species_tree.custom.rooted.png",
+        svg=f"{config['output_dir']}/plots/species_tree.custom.rooted.svg"
+    params:
+        title="Custom Species Tree (User-Provided)",
+        show_support=False
+    log:
+        f"{config['work_dir']}/logs/plot_custom_tree.log"
     conda:
         "../envs/ggtree.yaml"
     script:
